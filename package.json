@@ -1,0 +1,27 @@
+{
+  "name": "proyecto-final",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "frontend": "npm run dev --workspace=frontend",
+    "backend": "npm run dev --workspace=backend",
+    "dev": "npm run backend & npm run frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/segurajheremy-lab/proyecto-final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/segurajheremy-lab/proyecto-final/issues"
+  },
+  "homepage": "https://github.com/segurajheremy-lab/proyecto-final#readme"
+}
