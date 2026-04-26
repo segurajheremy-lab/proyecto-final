@@ -1,7 +1,7 @@
 # proyecto-final
 
 > [!NOTE]
-> Para realizar pruebas de testeo de las peticiones usanmos thunder client:
+> Para realizar pruebas de testeo de las peticiones usamos la extension thunder client:
 
 GET  /api/attendance/hoy               → ver estado actual
 POST /api/attendance/iniciar           → iniciar jornada
