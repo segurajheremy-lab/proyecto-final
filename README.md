@@ -1,5 +1,15 @@
 # proyecto-final
 
+[!NOTE]
+Para realizar pruebas de testeo de las peticiones usanmos thunder client:
+GET  /api/attendance/hoy               → ver estado actual
+POST /api/attendance/iniciar           → iniciar jornada
+POST /api/attendance/refrigerio/salir  → salir a refrigerio
+POST /api/attendance/refrigerio/volver → volver de refrigerio
+POST /api/attendance/finalizar         → finalizar jornada
+
+<img width="288" height="147" alt="image" src="https://github.com/user-attachments/assets/777f0697-d1d4-4e60-9048-0d31a85d229c" />
+
 BD : MongoDB Atlas
 -------------------
 <img width="1910" height="438" alt="{C9686E3D-69C4-4E53-A314-B42AF825EDCA}" src="https://github.com/user-attachments/assets/8bcf548c-44ff-4f6a-ada3-eae2538463d1" />
