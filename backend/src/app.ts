@@ -2,19 +2,24 @@ import express from 'express'
 import cors from 'cors'
 import { connectDB } from './config/db'
 import { env } from './config/env'
+import { errorHandler } from './middlewares/errorHandler'
+import authRoutes from './routes/auth.routes'
 
 const app = express()
 
-// Middlewares globales
 app.use(cors())
 app.use(express.json())
 
-// Ruta de salud — para verificar que el servidor corre
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', env: env.NODE_ENV })
 })
 
-// Arrancar servidor
+// Rutas
+app.use('/api/auth', authRoutes)
+
+// Manejador de errores — siempre al final
+app.use(errorHandler)
+
 const start = async () => {
   await connectDB()
   app.listen(env.PORT, () => {
