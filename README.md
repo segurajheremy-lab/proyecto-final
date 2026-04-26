@@ -1,7 +1,8 @@
 # proyecto-final
 
-[!NOTE]
-Para realizar pruebas de testeo de las peticiones usanmos thunder client:
+> [!NOTE]
+> Para realizar pruebas de testeo de las peticiones usanmos thunder client:
+
 GET  /api/attendance/hoy               → ver estado actual
 POST /api/attendance/iniciar           → iniciar jornada
 POST /api/attendance/refrigerio/salir  → salir a refrigerio
