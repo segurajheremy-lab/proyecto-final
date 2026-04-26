@@ -6,5 +6,5 @@ BD : MongoDB Atlas
 
 
 flujo de estados de jornada
-![Uploading attendance_state_machine.svg…]()
-
+----------------------------
+<img width="783" height="603" alt="image" src="https://github.com/user-attachments/assets/9388ca0d-bc67-40aa-9c8a-23b47880a494" />
