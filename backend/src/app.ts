@@ -5,7 +5,7 @@ import { env } from './config/env'
 import { errorHandler } from './middlewares/errorHandler'
 import authRoutes from './routes/auth.routes'
 import attendanceRoutes from './routes/attendance.routes'
-
+import reporteRoutes from './routes/reporte.routes' // 👈 IMPORTANTE
 
 const app = express()
 
@@ -19,6 +19,7 @@ app.get('/health', (_req, res) => {
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/attendance', attendanceRoutes)
+app.use('/api', reporteRoutes) // 👈 AQUI VA TU REPORTE
 
 // Manejador de errores — siempre al final
 app.use(errorHandler)
