@@ -5,7 +5,8 @@ import { env } from './config/env'
 import { errorHandler } from './middlewares/errorHandler'
 import authRoutes from './routes/auth.routes'
 import attendanceRoutes from './routes/attendance.routes'
-import reporteRoutes from './routes/reporte.routes' // 👈 IMPORTANTE
+import reporteRoutes from './routes/reporte.routes' //  IMPORTANTE
+
 import { startMarkAbsencesJob } from './jobs/markAbsences.job'
 
 const app = express()
@@ -20,7 +21,7 @@ app.get('/health', (_req, res) => {
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/attendance', attendanceRoutes)
-app.use('/api', reporteRoutes) // 👈 AQUI VA TU REPORTE
+app.use('/api', reporteRoutes) //  AQUI VA TU REPORTE
 
 // Manejador de errores — siempre al final
 app.use(errorHandler)
@@ -30,7 +31,7 @@ const start = async () => {
   // Iniciar jobs programados que requieren DB
   startMarkAbsencesJob()
   app.listen(env.PORT, () => {
-    console.log(`🚀 Servidor corriendo en puerto: http://localhost:${env.PORT}`)
+    console.log(`Servidor corriendo en puerto: http://localhost:${env.PORT}`)
   })
 }
 
