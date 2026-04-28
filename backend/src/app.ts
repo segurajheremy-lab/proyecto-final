@@ -31,7 +31,7 @@ const start = async () => {
   // Iniciar jobs programados que requieren DB
   startMarkAbsencesJob()
   app.listen(env.PORT, () => {
-    console.log(`Servidor corriendo en puerto: http://localhost:${env.PORT}`)
+    console.log(`Servidor corriendo en el puerto: ${env.PORT}`)
   })
 }
 
