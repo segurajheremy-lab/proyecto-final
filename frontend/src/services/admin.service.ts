@@ -1,21 +1,36 @@
 import axios from 'axios'
 
-const API = '/api/attendance'
-
 const getHeaders = () => ({
   headers: {
     Authorization: `Bearer ${localStorage.getItem('token')}`,
   },
 })
 
-export const getDailySummary = async () => {
-  const today = new Date()
-  // Ajuste al formato YYYY-MM-DD local
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
-  const fecha = `${year}-${month}-${day}`
-  
-  const { data } = await axios.get(`${API}/resumen?fecha=${fecha}`, getHeaders())
+export const obtenerResumen = async (fecha: string) => {
+  const { data } = await axios.get(`/api/attendance/resumen?fecha=${fecha}`, getHeaders())
+  return data
+}
+
+export const descargarExcel = async (fecha: string) => {
+  const response = await axios.get(`/api/reports/download?fecha=${fecha}`, {
+    ...getHeaders(),
+    responseType: 'blob',
+  })
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `reporte-${fecha}.xlsx`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
+export const enviarReportePorCorreo = async (fecha: string, destinatario: string) => {
+  const { data } = await axios.post(
+    '/api/reporte',
+    { fecha, destinatario },
+    getHeaders()
+  )
   return data
 }
