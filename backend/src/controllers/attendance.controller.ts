@@ -6,6 +6,7 @@ import {
   volverRefrigerioService,
   finalizarJornadaService,
   obtenerEstadoHoyService,
+  obtenerHistorialService
 } from '../services/attendance.service'
 
 export const iniciarJornada = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -47,6 +48,20 @@ export const finalizarJornada = async (req: AuthRequest, res: Response, next: Ne
 export const obtenerEstadoHoy = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const result = await obtenerEstadoHoyService(req.user!.id)
+    res.json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+//HISTORIAL DEL TRABAJADOR
+export const obtenerHistorial = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const result = await obtenerHistorialService(req.user!.id)
     res.json(result)
   } catch (error) {
     next(error)

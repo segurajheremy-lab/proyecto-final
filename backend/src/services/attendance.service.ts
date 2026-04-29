@@ -210,3 +210,48 @@ export const obtenerEstadoHoyService = async (userId: string) => {
     eventos: asistencia.eventos,
   }
 }
+
+// ─────────────────────────────────────────
+// 6. HISTORIAL DE LOS ÚLTIMOS 30 DÍAS
+// ─────────────────────────────────────────
+export const obtenerHistorialService = async (userId: string) => {
+  const hace30Dias = new Date()
+  hace30Dias.setDate(hace30Dias.getDate() - 30)
+  const fechaInicio = hace30Dias.toISOString().split('T')[0]
+  const fechaHoy = new Date().toISOString().split('T')[0]
+
+  const registros = await Attendance.find({
+    userId,
+    fecha: { $gte: fechaInicio, $lte: fechaHoy },
+  }).sort({ fecha: -1 })
+
+  const diasAsistidos = registros.filter(r =>
+    ['jornada_activa', 'en_refrigerio', 'post_refrigerio', 'finalizado'].includes(r.status)
+  ).length
+  const diasFalta = registros.filter(r =>
+    ['falta', 'falta_justificada'].includes(r.status)
+  ).length
+  const tardanzas = registros.filter(r => r.tardanza).length
+  const horasTotal = registros.reduce((acc, r) => acc + (r.horasTrabajadas ?? 0), 0)
+  const promedioHoras = diasAsistidos > 0
+    ? Math.round((horasTotal / diasAsistidos) * 100) / 100
+    : 0
+
+  return {
+    resumen: {
+      totalDias: registros.length,
+      diasAsistidos,
+      diasFalta,
+      tardanzas,
+      promedioHoras,
+    },
+    registros: registros.map(r => ({
+      fecha: r.fecha,
+      status: r.status,
+      tardanza: r.tardanza,
+      minutosTardanza: r.minutosTardanza,
+      minutosRefrigerio: r.minutosRefrigerio,
+      horasTrabajadas: r.horasTrabajadas,
+    })),
+  }
+}
