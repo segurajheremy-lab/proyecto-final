@@ -6,7 +6,8 @@ import {
   volverRefrigerioService,
   finalizarJornadaService,
   obtenerEstadoHoyService,
-  obtenerHistorialService
+  obtenerHistorialService,
+  obtenerResumenService
 } from '../services/attendance.service'
 
 export const iniciarJornada = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -62,6 +63,21 @@ export const obtenerHistorial = async (
 ): Promise<void> => {
   try {
     const result = await obtenerHistorialService(req.user!.id)
+    res.json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+// RESUMEN PARA EL ADMIN
+export const obtenerResumen = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const fecha = req.query.fecha as string
+    if (!fecha) {
+      res.status(400).json({ message: 'La fecha es obligatoria (YYYY-MM-DD)' })
+      return
+    }
+    const result = await obtenerResumenService(fecha)
     res.json(result)
   } catch (error) {
     next(error)

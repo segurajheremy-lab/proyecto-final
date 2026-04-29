@@ -1,4 +1,4 @@
-import { Attendance, AttendanceStatus } from '../models/Attendance.model'
+ import { Attendance, AttendanceStatus } from '../models/Attendance.model'
 import { User } from '../models/User.model'
 import { AppError } from '../middlewares/errorHandler'
 import { getFechaHoy, calcularTardanza, calcularHorasTrabajadas, diffMinutes } from '../utils/dates'
@@ -254,4 +254,113 @@ export const obtenerHistorialService = async (userId: string) => {
       horasTrabajadas: r.horasTrabajadas,
     })),
   }
+}
+
+// ─────────────────────────────────────────
+// 7. OBTENER RESUMEN (ADMIN) - EFICIENTE CON AGGREGATION
+// ─────────────────────────────────────────
+export const obtenerResumenService = async (fecha: string) => {
+  const result = await User.aggregate([
+    { $match: { role: 'worker', activo: true } },
+    {
+      $lookup: {
+        from: 'attendances',
+        let: { userId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$userId', '$$userId'] },
+                  { $eq: ['$fecha', fecha] }
+                ]
+              }
+            }
+          }
+        ],
+        as: 'asistencia'
+      }
+    },
+    {
+      $unwind: {
+        path: '$asistencia',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        nombre: 1,
+        email: 1,
+        status: { $ifNull: ['$asistencia.status', 'sin_jornada'] },
+        tardanza: { $ifNull: ['$asistencia.tardanza', false] },
+        horasTrabajadas: { $ifNull: ['$asistencia.horasTrabajadas', 0] }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalWorkers: { $sum: 1 },
+        presentes: {
+          $sum: {
+            $cond: [
+              { $in: ['$status', ['jornada_activa', 'en_refrigerio', 'post_refrigerio', 'finalizado']] },
+              1, 0
+            ]
+          }
+        },
+        faltas: {
+          $sum: {
+            $cond: [
+              { $in: ['$status', ['falta', 'falta_justificada']] },
+              1, 0
+            ]
+          }
+        },
+        tardanzas: {
+          $sum: { $cond: ['$tardanza', 1, 0] }
+        },
+        enJornada: {
+          $sum: {
+            $cond: [
+              { $in: ['$status', ['jornada_activa', 'en_refrigerio', 'post_refrigerio']] },
+              1, 0
+            ]
+          }
+        },
+        finalizados: {
+          $sum: {
+            $cond: [
+              { $eq: ['$status', 'finalizado'] },
+              1, 0
+            ]
+          }
+        },
+        trabajadores: {
+          $push: {
+            nombre: '$nombre',
+            email: '$email',
+            status: '$status',
+            tardanza: '$tardanza',
+            horasTrabajadas: '$horasTrabajadas'
+          }
+        }
+      }
+    }
+  ])
+
+  if (!result || result.length === 0) {
+    return {
+      totalWorkers: 0,
+      presentes: 0,
+      faltas: 0,
+      tardanzas: 0,
+      enJornada: 0,
+      finalizados: 0,
+      trabajadores: []
+    }
+  }
+
+  const { _id, ...resumen } = result[0]
+  return resumen
 }

@@ -8,12 +8,16 @@ import {
   finalizarJornada,
   obtenerEstadoHoy,
   obtenerHistorial,
+  obtenerResumen,
 } from '../controllers/attendance.controller'
 
 const router = Router()
 
 // Todas requieren estar autenticado
 router.use(authenticate)
+
+// Rutas Admin
+router.get('/resumen', authorize('VIEW_ALL_ATTENDANCE'), obtenerResumen)
 
 // Solo workers marcan asistencia
 router.get('/hoy', authorize('VIEW_OWN_ATTENDANCE'), obtenerEstadoHoy)
