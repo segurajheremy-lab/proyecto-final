@@ -7,7 +7,8 @@ import authRoutes from './routes/auth.routes'
 import attendanceRoutes from './routes/attendance.routes'
 import reporteRoutes from './routes/reporte.routes' //  IMPORTANTE
 
-import { startMarkAbsencesJob } from './jobs/markAbsences.job'
+import './jobs/markAbsences.job'
+import './jobs/sendDailyReport.job'
 
 const app = express()
 
@@ -29,7 +30,6 @@ app.use(errorHandler)
 const start = async () => {
   await connectDB()
   // Iniciar jobs programados que requieren DB
-  startMarkAbsencesJob()
   app.listen(env.PORT, () => {
     console.log(`Servidor corriendo en el puerto: ${env.PORT}`)
   })
