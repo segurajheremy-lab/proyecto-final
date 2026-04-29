@@ -22,7 +22,8 @@ app.get('/health', (_req, res) => {
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/attendance', attendanceRoutes)
-app.use('/api', reporteRoutes) //  AQUI VA TU REPORTE
+app.use('/api/reporte', reporteRoutes)
+app.use('/api/reports', reporteRoutes)
 
 // Manejador de errores — siempre al final
 app.use(errorHandler)
