@@ -1,6 +1,7 @@
 import cron from 'node-cron';
-import { generarExcel } from '../services/reporte.service';
+import { generarExcelBuffer } from '../services/reporte.service';
 import { enviarCorreo } from '../services/email.service';
+import { getFechaHoy } from '../utils/dates';
 
 console.log('[jobs] Iniciando job: sendDailyReport');
 
@@ -8,11 +9,15 @@ cron.schedule('0 23 * * *', async () => {
   console.log(`[jobs] sendDailyReport ejecutando a las 23:00`);
 
   try {
-    const filePath = await generarExcel();
-    console.log(`[jobs] sendDailyReport: Excel generado en ${filePath}`);
+    const fecha = getFechaHoy();
+    const buffer = await generarExcelBuffer(fecha);
+    console.log(`[jobs] sendDailyReport: Excel generado para la fecha ${fecha}`);
 
-    await enviarCorreo(filePath);
-    console.log(`[jobs] sendDailyReport: Correo enviado exitosamente`);
+    // Usaremos MAIL_USER como destino por defecto, o el que esté configurado
+    const destinatario = process.env.MAIL_USER as string;
+    await enviarCorreo(buffer, destinatario);
+    
+    console.log(`[jobs] sendDailyReport: Correo enviado exitosamente a ${destinatario}`);
   } catch (err) {
     console.error('[jobs] sendDailyReport error:', err);
   }
