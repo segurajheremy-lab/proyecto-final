@@ -28,3 +28,23 @@ export interface IAttendanceState {
   horasTrabajadas?: number | null
   eventos: IAttendanceEvent[]
 }
+
+export interface IHistorialRegistro {
+  fecha: string
+  status: AttendanceStatus
+  tardanza: boolean
+  minutosTardanza: number
+  minutosRefrigerio: number | null
+  horasTrabajadas: number | null
+}
+
+export interface IHistorial {
+  resumen: {
+    totalDias: number
+    diasAsistidos: number
+    diasFalta: number
+    tardanzas: number
+    promedioHoras: number
+  }
+  registros: IHistorialRegistro[]
+}

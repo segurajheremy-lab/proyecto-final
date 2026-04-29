@@ -33,3 +33,8 @@ export const finalizarJornada = async (): Promise<unknown> => {
   const { data } = await axios.post(`${API}/finalizar`, {}, getHeaders())
   return data
 }
+
+export const obtenerHistorial = async () => {
+  const { data } = await axios.get('/api/attendance/historial', getHeaders())
+  return data
+}

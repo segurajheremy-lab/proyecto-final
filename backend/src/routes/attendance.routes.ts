@@ -7,6 +7,7 @@ import {
   volverRefrigerio,
   finalizarJornada,
   obtenerEstadoHoy,
+  obtenerHistorial,
 } from '../controllers/attendance.controller'
 
 const router = Router()
@@ -20,5 +21,6 @@ router.post('/iniciar', authorize('MARK_ATTENDANCE'), iniciarJornada)
 router.post('/refrigerio/salir', authorize('MARK_ATTENDANCE'), salirRefrigerio)
 router.post('/refrigerio/volver', authorize('MARK_ATTENDANCE'), volverRefrigerio)
 router.post('/finalizar', authorize('MARK_ATTENDANCE'), finalizarJornada)
+router.get('/historial', authorize('VIEW_OWN_ATTENDANCE'), obtenerHistorial)
 
 export default router

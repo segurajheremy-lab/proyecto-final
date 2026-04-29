@@ -25,6 +25,7 @@ export default function Login() {
   }
 
   return (
+<<<<<<< HEAD
     <div style={{
       minHeight: '100vh',
       display: 'flex',
@@ -58,6 +59,15 @@ export default function Login() {
               marginBottom: '16px',
             }}>
               <svg width="28" height="28" fill="none" stroke="white" viewBox="0 0 24 24">
+=======
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 z-0" />
+      <div className="relative z-10 w-full max-w-md px-4">
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-8">
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-blue-600 mb-4">
+              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+>>>>>>> d6ff6db5c18db0fa7c7ef3e3bb47e53026d8d367
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -69,7 +79,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Error */}
           {error && (
             <div style={{
               marginBottom: '16px',
@@ -84,10 +93,16 @@ export default function Login() {
             </div>
           )}
 
+<<<<<<< HEAD
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', color: '#cbd5e1', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
+=======
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+>>>>>>> d6ff6db5c18db0fa7c7ef3e3bb47e53026d8d367
                 Correo electrónico
               </label>
               <input
@@ -153,7 +168,11 @@ export default function Login() {
             </button>
           </form>
 
+<<<<<<< HEAD
           <p style={{ textAlign: 'center', color: '#475569', fontSize: '12px', marginTop: '20px' }}>
+=======
+          <p className="text-center text-slate-600 text-xs mt-6">
+>>>>>>> d6ff6db5c18db0fa7c7ef3e3bb47e53026d8d367
             Solo el administrador puede crear cuentas
           </p>
         </div>

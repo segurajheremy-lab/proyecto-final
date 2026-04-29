@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useAttendance } from '../../context/AttendanceContext'
 import { AttendanceProvider } from '../../context/AttendanceContext'
-import { AttendanceStatus } from '../../types/attendance.types'
+import { AttendanceStatus, IHistorial, IHistorialRegistro } from '../../types/attendance.types'
+import { obtenerHistorial } from '../../services/attendance.service'
 
 const statusConfig: Record<AttendanceStatus, { label: string; color: string; bg: string }> = {
   sin_jornada: { label: 'Sin iniciar', color: 'text-slate-400', bg: 'bg-slate-500/10' },
@@ -27,8 +28,27 @@ const DashboardContent = () => {
     handleFinalizarJornada,
   } = useAttendance()
 
+  const [historial, setHistorial] = useState<IHistorial | null>(null)
+  const [loadingHistorial, setLoadingHistorial] = useState(false)
+  const [historialAbierto, setHistorialAbierto] = useState(false)
+
   useEffect(() => {
     cargarEstado()
+  }, []) // eslint-disable-line
+
+  useEffect(() => {
+    const cargarHistorial = async () => {
+      try {
+        setLoadingHistorial(true)
+        const data = await obtenerHistorial()
+        setHistorial(data)
+      } catch {
+        console.error('Error cargando historial')
+      } finally {
+        setLoadingHistorial(false)
+      }
+    }
+    cargarHistorial()
   }, []) // eslint-disable-line
 
   const status = estado?.status ?? 'sin_jornada'
@@ -216,6 +236,111 @@ const DashboardContent = () => {
             </div>
           </div>
         )}
+
+        {/* Historial 30 días — desplegable */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setHistorialAbierto(!historialAbierto)}
+            className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
+          >
+            <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+              Historial — últimos 30 días
+            </h2>
+            <div className="flex items-center gap-3">
+              {historial && (
+                <span className="text-xs text-slate-500">
+                  {historial.resumen.diasAsistidos} asistidos · {historial.resumen.tardanzas} tardanzas
+                </span>
+              )}
+              <svg
+                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${historialAbierto ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </button>
+
+          {historialAbierto && (
+            <div className="px-6 pb-6">
+              {/* Resumen */}
+              {historial && (
+                <div className="grid grid-cols-5 gap-3 mb-6">
+                  {[
+                    { label: 'Días registrados', value: historial.resumen.totalDias, color: 'text-slate-200' },
+                    { label: 'Asistidos', value: historial.resumen.diasAsistidos, color: 'text-emerald-400' },
+                    { label: 'Faltas', value: historial.resumen.diasFalta, color: 'text-red-400' },
+                    { label: 'Tardanzas', value: historial.resumen.tardanzas, color: 'text-amber-400' },
+                    { label: 'Prom. horas', value: `${historial.resumen.promedioHoras}h`, color: 'text-blue-400' },
+                  ].map((item) => (
+                    <div key={item.label} className="bg-slate-800/50 rounded-xl p-3 text-center">
+                      <p className="text-xs text-slate-500 mb-1">{item.label}</p>
+                      <p className={`text-lg font-bold ${item.color}`}>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Tabla */}
+              {loadingHistorial ? (
+                <div className="text-center py-8 text-slate-500 text-sm">Cargando historial...</div>
+              ) : historial && historial.registros.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800">
+                        <th className="text-left text-xs text-slate-500 font-medium pb-3 pr-4">Fecha</th>
+                        <th className="text-left text-xs text-slate-500 font-medium pb-3 pr-4">Estado</th>
+                        <th className="text-left text-xs text-slate-500 font-medium pb-3 pr-4">Tardanza</th>
+                        <th className="text-left text-xs text-slate-500 font-medium pb-3 pr-4">Refrigerio</th>
+                        <th className="text-left text-xs text-slate-500 font-medium pb-3">Horas</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {historial.registros.map((registro: IHistorialRegistro) => (
+                        <tr key={registro.fecha} className="hover:bg-slate-800/30 transition-colors">
+                          <td className="py-3 pr-4 text-slate-300 font-medium">
+                            {new Date(registro.fecha + 'T12:00:00').toLocaleDateString('es-PE', {
+                              weekday: 'short',
+                              day: '2-digit',
+                              month: 'short',
+                            })}
+                          </td>
+                          <td className="py-3 pr-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+                              ${statusConfig[registro.status].bg} ${statusConfig[registro.status].color}`}>
+                              {statusConfig[registro.status].label}
+                            </span>
+                          </td>
+                          <td className="py-3 pr-4">
+                            {registro.tardanza ? (
+                              <span className="text-red-400 text-xs">{registro.minutosTardanza} min</span>
+                            ) : (
+                              <span className="text-emerald-400 text-xs">Puntual</span>
+                            )}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-400 text-xs">
+                            {registro.minutosRefrigerio != null ? `${registro.minutosRefrigerio} min` : '—'}
+                          </td>
+                          <td className="py-3 text-slate-300 font-medium text-xs">
+                            {registro.horasTrabajadas != null ? `${registro.horasTrabajadas}h` : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500 text-sm">
+                  No hay registros en los últimos 30 días
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
       </main>
     </div>
   )
