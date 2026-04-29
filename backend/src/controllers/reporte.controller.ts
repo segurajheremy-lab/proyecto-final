@@ -1,15 +1,32 @@
-import { Request, Response } from "express";
-import { generarExcel } from "../services/reporte.service";
+import { Response, NextFunction } from "express";
+import { AuthRequest } from "../middlewares/auth.middleware";
+import { generarExcelBuffer } from "../services/reporte.service";
 import { enviarCorreo } from "../services/email.service";
 
-export const enviarReporte = async (req: Request, res: Response) => {
+export const enviarReporte = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const filePath = await generarExcel();
-    await enviarCorreo(filePath);
+    // 1. Ahora solo esperamos 'fecha' y 'destinatario'
+    const { fecha, destinatario } = req.body;
+
+    // 2. Esta es la validación que te mandaba el error rojo. ¡Ya está arreglada!
+    if (!fecha || !destinatario) {
+      res.status(400).json({
+        message: "La fecha y el destinatario son requeridos",
+      });
+      return;
+    }
+
+    // 3. Llamamos al servicio pasando solo la fecha única
+    const buffer = await generarExcelBuffer(fecha);
+    
+    await enviarCorreo(buffer, destinatario);
 
     res.json({ message: "Reporte enviado correctamente" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al enviar reporte" });
+  } catch (error: any) {
+    next(error);
   }
 };

@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 
-export const enviarCorreo = async (filePath: string) => {
+export const enviarCorreo = async (
+  buffer: Buffer,
+  destinatario: string
+): Promise<void> => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -11,13 +14,13 @@ export const enviarCorreo = async (filePath: string) => {
 
   await transporter.sendMail({
     from: process.env.MAIL_FROM,
-    to: process.env.MAIL_USER, // o el destino que necesites
+    to: destinatario,
     subject: "Reporte de Asistencia",
-    text: "Adjunto reporte en Excel",
+    text: "Adjunto el reporte de asistencia en Excel.",
     attachments: [
       {
-        filename: "reporte.xlsx",
-        path: filePath,
+        filename: `reporte-${new Date().toISOString().split("T")[0]}.xlsx`,
+        content: buffer,
       },
     ],
   });

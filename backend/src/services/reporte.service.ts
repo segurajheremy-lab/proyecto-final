@@ -1,21 +1,35 @@
 import ExcelJS from "exceljs";
-import path from "path";
+import { Attendance } from "../models/Attendance.model";
 
-export const generarExcel = async () => {
+// ✅ Ahora solo recibe 'fecha' como string
+export const generarExcelBuffer = async (fecha: string): Promise<Buffer> => {
+  const asistencias = await Attendance.find({
+    fecha: fecha, // ✅ Filtro de un solo día
+  }).populate<{ userId: { nombre: string; email: string } }>(
+    "userId",
+    "nombre email"
+  );
+
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Asistencia");
 
   sheet.columns = [
-    { header: "Nombre", key: "nombre", width: 20 },
+    { header: "Nombre", key: "nombre", width: 25 },
+    { header: "Email", key: "email", width: 30 },
     { header: "Fecha", key: "fecha", width: 15 },
-    { header: "Estado", key: "estado", width: 15 },
+    { header: "Estado", key: "status", width: 20 },
   ];
 
-  sheet.addRow({ nombre: "Juan", fecha: "2026-04-26", estado: "Presente" });
-  sheet.addRow({ nombre: "Maria", fecha: "2026-04-26", estado: "Falta" });
+  for (const a of asistencias) {
+    const user = a.userId as any;
+    sheet.addRow({
+      nombre: user?.nombre ?? "Desconocido",
+      email: user?.email ?? "-",
+      fecha: a.fecha,
+      status: a.status,
+    });
+  }
 
-  const filePath = path.join(__dirname, "../../reporte.xlsx");
-  await workbook.xlsx.writeFile(filePath);
-
-  return filePath;
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 };

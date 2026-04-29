@@ -25,40 +25,69 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
-      {/* Fondo con gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 z-0" />
-
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-md px-4">
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-8">
-
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-blue-600 mb-4">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f1f3d 100%)',
+      fontFamily: 'system-ui, sans-serif',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '420px',
+        padding: '0 16px',
+      }}>
+        <div style={{
+          background: '#1e293b',
+          border: '1px solid #334155',
+          borderRadius: '16px',
+          padding: '40px 32px',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+        }}>
+          {/* Ícono */}
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '56px',
+              height: '56px',
+              borderRadius: '14px',
+              background: '#2563eb',
+              marginBottom: '16px',
+            }}>
+              <svg width="28" height="28" fill="none" stroke="white" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 style={{ color: 'white', fontSize: '22px', fontWeight: 700, margin: 0 }}>
               Control de Asistencia
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '6px' }}>
               Inicia sesión para continuar
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            <div style={{
+              marginBottom: '16px',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              color: '#f87171',
+              fontSize: '14px',
+            }}>
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
                 Correo electrónico
               </label>
               <input
@@ -67,12 +96,22 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@empresa.com"
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  color: 'white',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>
                 Contraseña
               </label>
               <input
@@ -81,21 +120,40 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  color: 'white',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors text-sm mt-2"
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                background: isLoading ? '#1d4ed8' : '#2563eb',
+                color: 'white',
+                fontSize: '15px',
+                fontWeight: 600,
+                border: 'none',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+              }}
             >
               {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
           </form>
 
-          {/* Footer */}
-          <p className="text-center text-slate-600 text-xs mt-6">
+          <p style={{ textAlign: 'center', color: '#475569', fontSize: '12px', marginTop: '20px' }}>
             Solo el administrador puede crear cuentas
           </p>
         </div>

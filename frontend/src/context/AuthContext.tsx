@@ -18,35 +18,36 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
 })
 
-// Inicializamos desde localStorage directamente para evitar cascading renders
-const getInitialToken = () => localStorage.getItem('token')
-const getInitialUser = (): IUser | null => {
-  const saved = localStorage.getItem('user')
-  return saved ? (JSON.parse(saved) as IUser) : null
-}
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<IUser | null>(getInitialUser)
-  const [token, setToken] = useState<string | null>(getInitialToken)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [user, setUser] = useState<IUser | null>(null)
+  const [token, setToken] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const savedUser = localStorage.getItem('user')
+    const savedToken = localStorage.getItem('token')
+
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser))
+      setToken(savedToken)
+    }
+
     setIsLoading(false)
   }, [])
 
-  const login = async (email: string, password: string): Promise<void> => {
-    const response = await loginService(email, password)
-    setToken(response.token)
-    setUser(response.user)
-    localStorage.setItem('token', response.token)
-    localStorage.setItem('user', JSON.stringify(response.user))
+  const login = async (email: string, password: string) => {
+    const res = await loginService(email, password)
+    setUser(res.user)
+    setToken(res.token)
+
+    localStorage.setItem('user', JSON.stringify(res.user))
+    localStorage.setItem('token', res.token)
   }
 
-  const logout = (): void => {
-    setToken(null)
+  const logout = () => {
     setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    setToken(null)
+    localStorage.clear()
   }
 
   return (
@@ -56,7 +57,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = (): AuthContextType => {
-  return useContext(AuthContext)
-}
+export const useAuth = () => useContext(AuthContext)
