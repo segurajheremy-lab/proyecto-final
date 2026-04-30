@@ -6,6 +6,7 @@ import { errorHandler } from './middlewares/errorHandler'
 import authRoutes from './routes/auth.routes'
 import attendanceRoutes from './routes/attendance.routes'
 import reporteRoutes from './routes/reporte.routes' //  IMPORTANTE
+import userRoutes from './routes/user.routes'
 
 import './jobs/markAbsences.job'
 import './jobs/sendDailyReport.job'
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/attendance', attendanceRoutes)
 app.use('/api/reporte', reporteRoutes)
 app.use('/api/reports', reporteRoutes)
+app.use('/api/users', userRoutes)
 
 // Manejador de errores — siempre al final
 app.use(errorHandler)
