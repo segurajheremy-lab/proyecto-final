@@ -2,8 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-
-const AdminPanel = () => <div className="text-white p-8">Admin — próximamente</div>
+import AdminAttendance from './pages/Admin/Attendance'
 
 const ProtectedRoute = ({
   children,
@@ -41,7 +40,7 @@ export default function App() {
         path="/admin"
         element={
           <ProtectedRoute allowedRoles={['super_admin', 'admin', 'reporter']}>
-            <AdminPanel />
+            <AdminAttendance />
           </ProtectedRoute>
         }
       />

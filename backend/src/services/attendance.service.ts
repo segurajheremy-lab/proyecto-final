@@ -1,5 +1,6 @@
 import { Attendance, AttendanceStatus } from '../models/Attendance.model'
 import { User } from '../models/User.model'
+import { AuditLog } from '../models/AuditLog.model'
 import { AppError } from '../middlewares/errorHandler'
 import { getFechaHoy, calcularTardanza, calcularHorasTrabajadas, diffMinutes } from '../utils/dates'
 
@@ -209,4 +210,50 @@ export const obtenerEstadoHoyService = async (userId: string) => {
     horasTrabajadas: asistencia.horasTrabajadas,
     eventos: asistencia.eventos,
   }
+}
+
+// ─────────────────────────────────────────
+// 6. LISTAR ASISTENCIA POR FECHA (ADMIN)
+// ─────────────────────────────────────────
+export const listarAsistenciaPorFechaService = async (fecha: string) => {
+  return await Attendance.find({ fecha })
+    .populate('userId', 'nombre email')
+    .sort({ createdAt: -1 })
+}
+
+// ─────────────────────────────────────────
+// 7. EDITAR ASISTENCIA (ADMIN)
+// ─────────────────────────────────────────
+export const editarAsistenciaService = async (
+  attendanceId: string,
+  adminId: string,
+  cambios: Partial<any>,
+  razon: string
+) => {
+  const asistencia = await Attendance.findById(attendanceId)
+  if (!asistencia) throw new AppError('Registro de asistencia no encontrado', 404)
+
+  // Guardar estado anterior para auditoría
+  const antes = asistencia.toObject() as any
+
+  // Aplicar cambios
+  Object.assign(asistencia, cambios)
+  asistencia.editadoPor = adminId as any
+
+  await asistencia.save()
+
+  // Crear log de auditoría
+  await AuditLog.create({
+    adminId,
+    accion: 'EDIT_ATTENDANCE',
+    coleccion: 'attendance',
+    documentoId: attendanceId,
+    cambios: {
+      antes,
+      despues: asistencia.toObject() as any,
+    },
+    razon,
+  })
+
+  return asistencia
 }

@@ -28,10 +28,10 @@ const getInitialUser = (): IUser | null => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(getInitialUser)
   const [token, setToken] = useState<string | null>(getInitialToken)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    setIsLoading(false)
+    // Ya no es necesario ponerlo en false aquí porque se inicializa en false
   }, [])
 
   const login = async (email: string, password: string): Promise<void> => {
