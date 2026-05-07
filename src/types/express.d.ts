@@ -7,13 +7,13 @@ import type { Role } from '../config/permissions';
 export interface AuthUser {
   /** MongoDB _id as string */
   id: string;
-  /** Tenant the user belongs to */
+  /** Tenant the user belongs to. Empty string for super_admin (no tenant). */
   tenantId: string;
   /** User role */
   role: Role;
   /** Display name */
   nombre: string;
-  /** Corporate email domain of the tenant (e.g. "empresa1.com") */
+  /** Corporate email domain of the tenant. Empty string for super_admin. */
   dominio: string;
 }
 

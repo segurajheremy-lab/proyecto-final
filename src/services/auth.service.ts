@@ -238,7 +238,9 @@ export async function generarInvitacionService(
 
   const token = jwt.sign(payload, config.JWT_SECRET, { expiresIn: '48h' } as jwt.SignOptions);
 
-  const link = `/api/auth/aceptar-invitacion?token=${token}`;
+  // Link points to the FRONTEND page, not the backend API
+  const frontendUrl = config.FRONTEND_URL.replace(/\/$/, '');
+  const link = `${frontendUrl}/aceptar-invitacion?token=${token}`;
 
   return { link, token };
 }

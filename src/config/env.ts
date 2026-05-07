@@ -18,6 +18,7 @@ const envSchema = z.object({
   MAIL_USER: z.string().min(1, 'MAIL_USER is required'),
   MAIL_PASS: z.string().min(1, 'MAIL_PASS is required'),
   MAIL_FROM: z.string().email('MAIL_FROM must be a valid email address'),
+  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
 });
 

@@ -39,4 +39,17 @@ authRouter.post('/invitar', authenticate, generarInvitacion);
 /** Return the authenticated user's profile */
 authRouter.get('/me', authenticate, me);
 
+/** DEBUG: Return the authenticated user's role from the request object */
+authRouter.get('/debug-role', authenticate, (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      id: req.user?.id,
+      role: req.user?.role,
+      nombre: req.user?.nombre,
+      tenantId: req.user?.tenantId,
+    },
+  });
+});
+
 export default authRouter;

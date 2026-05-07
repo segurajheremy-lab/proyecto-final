@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Error as MongooseError } from 'mongoose';
+import { ZodError } from 'zod';
 
 // ---------------------------------------------------------------------------
 // AppError — operational errors with an HTTP status code
@@ -43,13 +44,14 @@ interface MongoServerError extends Error {
  *
  * Handles:
  * - AppError              → err.statusCode + err.message
+ * - ZodError              → 400 with per-field validation errors
  * - Mongoose duplicate    → 409 with field info
  * - Mongoose validation   → 400 with per-field messages
  * - Everything else       → 500 (stack trace only in development)
  */
 export function errorHandler(
   err: Error,
-  req: Request,
+  _req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
@@ -66,7 +68,21 @@ export function errorHandler(
     return;
   }
 
-  // 2. MongoDB duplicate key (e.g. unique index violation)
+  // 2. Zod validation errors (from schema.parse() in controllers)
+  if (err instanceof ZodError) {
+    const errors = err.errors.map((e) => ({
+      field: e.path.join('.') || 'body',
+      message: e.message,
+    }));
+    res.status(400).json({
+      success: false,
+      message: errors[0]?.message ?? 'Error de validación.',
+      errors,
+    });
+    return;
+  }
+
+  // 3. MongoDB duplicate key (e.g. unique index violation)
   const mongoErr = err as MongoServerError;
   if (mongoErr.code === 11000) {
     const fields = mongoErr.keyValue
@@ -79,7 +95,7 @@ export function errorHandler(
     return;
   }
 
-  // 3. Mongoose validation error
+  // 4. Mongoose validation error
   if (err instanceof MongooseError.ValidationError) {
     const errors = Object.values(err.errors).map((e) => ({
       field: e.path,
@@ -93,7 +109,7 @@ export function errorHandler(
     return;
   }
 
-  // 4. Unknown / programming errors — log and return generic message
+  // 5. Unknown / programming errors — log and return generic message
   console.error('[errorHandler] Unhandled error:', err);
   res.status(500).json({
     success: false,

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
 import { User } from '../models/User.model';
 import { Tenant } from '../models/Tenant.model';
+import { checkWorkSchedule } from '../utils/time.util';
 import type { AuthUser, JwtPayload } from '../types/express';
 
 // Re-export so consumers can import from a single place
@@ -20,16 +21,6 @@ export interface AuthRequest extends Request {
 // authenticate middleware
 // ---------------------------------------------------------------------------
 
-/**
- * Verifies the Bearer JWT, loads the user + tenant from MongoDB,
- * and attaches the authenticated user to req.user.
- *
- * Responds 401 if:
- * - Authorization header is missing or malformed
- * - Token is invalid or expired
- * - User does not exist or is inactive (activo: false)
- * - Tenant does not exist or is suspended
- */
 export async function authenticate(
   req: Request,
   res: Response,
@@ -73,7 +64,20 @@ export async function authenticate(
     return;
   }
 
-  // 5. Load tenant and verify it is active
+  // 5. super_admin has no tenant — skip tenant checks entirely
+  if (user.role === 'super_admin') {
+    req.user = {
+      id:       String(user._id),
+      tenantId: '',   // super_admin is not scoped to any tenant
+      role:     user.role,
+      nombre:   user.nombre,
+      dominio:  '',
+    };
+    next();
+    return;
+  }
+
+  // 6. Load tenant and verify it is active (for all other roles)
   const tenant = await Tenant.findById(user.tenantId).lean();
   if (!tenant) {
     res.status(401).json({ success: false, message: 'Tenant not found.' });
@@ -88,7 +92,24 @@ export async function authenticate(
     return;
   }
 
-  // 6. Attach user to request
+  // 7. Work schedule enforcement for agents (Peru timezone)
+  if (user.role === 'agent' && user.horario?.entrada && user.horario?.salida) {
+    const scheduleCheck = checkWorkSchedule(
+      { entrada: user.horario.entrada, salida: user.horario.salida },
+      user.toleranciaMinutos ?? 10
+    );
+
+    if (!scheduleCheck.allowed) {
+      res.status(403).json({
+        success: false,
+        message: scheduleCheck.reason,
+        code: 'OUTSIDE_WORK_HOURS',
+      });
+      return;
+    }
+  }
+
+  // 8. Attach user to request
   req.user = {
     id:       String(user._id),
     tenantId: String(user.tenantId),
